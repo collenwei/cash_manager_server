@@ -1,4 +1,4 @@
-import pgdb from '../../config/postgres.db';
+import pgdb from '../config/postgres.db.js';
 
 export class Customer {
 	constructor(data) {
@@ -9,8 +9,9 @@ export class Customer {
 		this.customer_remark = data.customer_remark;
 		this.isdeleted = false;
 	}
-	static database = 'customer';
-	static schema = 'clean';
+	static database() {
+		return 'clean.customer';
+	}
 }
 
 export class CustomerDAO {

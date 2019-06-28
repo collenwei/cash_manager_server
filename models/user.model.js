@@ -1,4 +1,4 @@
-import pgdb from '../../config/postgres.db';
+import pgdb from '../config/postgres.db';
 
 export class User {
     constructor(data) {

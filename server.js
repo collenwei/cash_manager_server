@@ -3,11 +3,9 @@ import morgan from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
-import mongoose from 'mongoose';
 import promise from 'bluebird';
 import glob from 'glob';
-import token from './middlewares/token-json';
-import log from './middlewares/log-process';
+import token from './middlewares/token-json.js';
 import moment from 'moment';
 // import schedule from './utils/ScheduleUtil';
 // import {MaketDataIndexDAO} from './models/maket.model/maket_data_index.model';
@@ -18,7 +16,6 @@ import moment from 'moment';
 const app = express();
 const port = process.env.PORT || 16024;//16020;
 
-global.mongoose = mongoose;
 global.dirname = __dirname;
 global.localhost = process.env.LOCALHOST || 'http://10.1.2.107';
 global.pricing_host = process.env.PRICING_HOST || 'http://10.1.2.55:16011';
@@ -36,7 +33,7 @@ global.port = process.env.DOWNLOAD_PORT || 16024;
 //    });
 //    // console.log(typeof data);
 // });
-console.log(new Date(1520561535169))
+// console.log(new Date(1520561535169))
 //======= 对请求体进行解析 =======
 app.use(morgan('combined'));
 app.use(bodyParser.json());
@@ -54,7 +51,7 @@ app.use('/api/dictionary', token);
 app.use('/api/maketdata', token);
 app.use('/api/role', token);
 app.use('/api/schedule', token);
-app.use('/', log);
+// app.use('/', log);
 
 //======= 跨域请求处理 ========
 app.use(cors());
