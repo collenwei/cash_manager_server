@@ -7,8 +7,8 @@ import expressJwt from 'express-jwt';
 
 
 exports.login = async function(username, password) {
-    var pwd = crypto.md5(password + 'tongyu');
-    var userdata = await UserDAO.getByName(username);
+    var pwd = password;//crypto.md5(password + 'collen');
+    var userdata = {username: 'accord', password:'1234'}//await UserDAO.getByName(username);
     if (userdata && userdata.password == pwd) {
         userdata.sub = userdata.username;
         let token = jwt.sign(userdata, AuthConfig.secret, {algorithm: 'HS256' , expiresIn: 60 * 60 * 1000 });

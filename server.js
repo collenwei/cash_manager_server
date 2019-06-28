@@ -9,7 +9,7 @@ import glob from 'glob';
 import token from './middlewares/token-json';
 import log from './middlewares/log-process';
 import moment from 'moment';
-import schedule from './utils/ScheduleUtil';
+// import schedule from './utils/ScheduleUtil';
 // import {MaketDataIndexDAO} from './models/maket.model/maket_data_index.model';
 // import db from './config/db';
 // import fs from 'fs'
@@ -65,7 +65,7 @@ routers.forEach(r => {
     router.prefix && app.use(router.prefix, router);
 })
 //======= 服务启动以及端口匹配 ======
-schedule.schedule();
+// schedule.schedule();
 app.listen(port, () => {
 	console.log('magic happen on ', port)
 });
