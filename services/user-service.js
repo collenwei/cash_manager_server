@@ -1,6 +1,6 @@
 import crypto from 'utility';
 import jwt from 'jsonwebtoken';
-import { User, UserDAO } from '../models/other.model/user.model';
+import { User, UserDAO } from '../models/user.model';
 import AuthConfig from '../config/auth-config';
 import moment from 'moment';
 import expressJwt from 'express-jwt';
