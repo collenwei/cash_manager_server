@@ -2,6 +2,7 @@ import { Goods, GoodsDAO } from '../models/goods.model';
 import { Customer, CustomerDAO } from '../models/customer.model';
 import { Price, PriceDAO } from '../models/price.model';
 import { Order, OrderDAO } from '../models/order.model';
+import { Orders, OrdersDAO } from '../models/orders.model';
 import moment from 'moment';
 
 exports.commodity = async function(body) {
@@ -69,13 +70,10 @@ exports.searchcustomerprice = async function({customer_name, page, pageSize}) {
 		for(let i = 0; i < goods_list.length; i++) {
 			let prices = await PriceDAO.getPrice(customer.id, goods_list[i].id);
 			if(prices.length > 0) {
-				console.log('price', prices)
-				cell[`goods_${goods_list[i].id}_price`] = prices[0].price;
+				cell[`goods_${goods_list[i].id}`] = {price: prices[0].price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
 			} else {
-				console.log('goods_price', goods_list[i])
-				cell[`goods_${goods_list[i].id}_price`] = goods_list[i].goods_price;
+				cell[`goods_${goods_list[i].id}`] = {price: goods_list[i].goods_price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
 			}
-			goods_name[`goods_${goods_list[i].id}_price`] = goods_list[i].goods_name;
 		}
 		cell[`customer_name`] = customer.customer_name;
 		cell[`customer_address`] = customer.customer_address;
@@ -83,10 +81,105 @@ exports.searchcustomerprice = async function({customer_name, page, pageSize}) {
 		cell[`customer_remark`] = customer.customer_remark;
 		result_list.push(cell);
 	}
-	return {data: {data_list: result_list, key_list: goods_name}};
+	return {data: result_list};
 }
 
-exports.settlement = async function(body) {
-	let settle_list = await OrderDAO.settleSearch(body);
+//日结算；需要确认结算方式，若每月结算，月中如果价格变动。结算应如何进行？
+exports.settlement = async function({customer_id, pageSize, page, start_date, end_date}) {
+	let orders_list = await OrdersDAO.query(customer_id, page, pageSize, start_date, end_date);
+	let goods_list = await GoodsDAO.getList();
+	let result = []
+	for(let orders of orders_list) {
+		let cell = {}
+		cell.order = [];
+		console.log(1)
+		for(let goods of goods_list) {
+			let order = await OrderDAO.getOrder(orders.customer_id, goods.id, moment(orders.date).format('YYYY-MM-DD'));
+			cell.order.push({
+				number: order.length > 0 ? order[0].number: 0,
+				goods_name: goods.goods_name
+			})
+		}
+		console.log(2)
+		let customer = await CustomerDAO.getCustomer(orders.customer_id);
+		console.log(3)
+		cell.id = orders.id;
+		cell.customer_name = customer[0].customer_name;
+		cell.date = moment(orders.date).format("YYYY-MM-DD");
+		cell.remark = orders.remark;
+		cell.total = orders.total;
+		result.push(cell);
+	}
+	return {data: result};
+}
 
+//月结算
+exports.settlementmounth = async function() {
+
+}
+
+//总计
+exports.settlementtotal = async function() {
+
+}
+
+//当日订单已出则更改客户折扣后，订单价格不会自动变更，需要手动调整价格
+const createOrder = async function(customer_id, item, date) {
+	let order_list = await OrderDAO.getOrder(customer_id, item.goods_id, date);
+	console.log('order_list1', order_list);
+	if(order_list.length > 0) {
+		let order = {
+			price: item.price,
+			number: item.order,
+			order_date: date
+		}
+		console.log('order', order)
+		await OrderDAO.update(order, order_list[0].id);
+		return {}
+	} else {
+		let order = {
+			customer_id: customer_id,
+			goods_id: item.goods_id,
+			price: item.price,
+			number: item.order,
+			order_date: date, 
+		}
+		console.log('order', order)
+		let result = await OrderDAO.insert(order);
+		return {}
+	}
+}
+
+exports.setOrder = async function(customer_id, items, order_date, remark) {
+	let total_amount = 0;
+	for(let item of items) {
+		total_amount = total_amount + item.price*item.order;
+		await createOrder(customer_id, item, order_date);
+	}
+	let order_ids = await OrderDAO.getOrderIds(customer_id, order_date);
+	order_ids = order_ids.map((data) => {
+		let id = data.id;
+		return id;
+	});
+	let orders_list = await OrdersDAO.getOrders(customer_id, order_date);
+	if(orders_list.length > 0) {
+		let orders = {
+			customer_id: customer_id,
+			orders: {ids: order_ids},
+			date: order_date,
+			total: total_amount,
+			remark: remark
+		}
+		await OrdersDAO.update(orders, orders_list[0].id);
+	} else {
+		let orders = {
+			customer_id: customer_id,
+			orders: {ids: order_ids},
+			date: order_date,
+			total: total_amount,
+			remark: remark
+		}
+		await OrdersDAO.insert(orders);
+	}
+	return {};
 }

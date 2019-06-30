@@ -48,12 +48,22 @@ router.route('/price').post(function(req, res) {
 });
 
 
-//结算单查询
-router.route('/settlement').post(function(req, res) {
+//日结算单查询
+router.route('/order').get(function(req, res) {
 	business_controller.settlement(req, res);
 });
 
-//录入客户每日商品数额
+//月结算单查询
+router.route('/order').get(function(req, res) {
+	business_controller.settlementmounth(req, res);
+});
+
+//总计结算单查询
+router.route('/order').get(function(req, res) {
+	business_controller.settlementtotal(req, res);
+});
+
+//录入每日客户订单数
 router.route('/order').post(function(req, res) {
 	business_controller.setOrder(req, res);
 });

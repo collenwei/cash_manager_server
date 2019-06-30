@@ -6,7 +6,7 @@ export class Order {
 		this.customer_id = data.customer_id;
 		this.goods_id = data.goods_id;
 		this.price = data.price;
-		this.order = data.order;
+		this.number = data.number;
 		this.order_date = data.order_date;
 		this.isdeleted = false;
 	}
@@ -21,7 +21,7 @@ export class OrderDAO {
 		const key = Object.keys(order);
 		const result = await pgdb.any( 
 			`INSERT INTO ${Order.database()} (${key.join(',')}) VALUES (${[...Array(key.length).keys()].map((_,i)=>"$"+(i+1))})`,
-            key.map(i => userData[i])
+            key.map(i => order[i])
         );
         return result;
 	}
@@ -34,8 +34,7 @@ export class OrderDAO {
 		for (let i = 0; i < fields.length; i++) {
             item.push(`${fields[i]}=${value[i]}`);
         }
-        console.log('sql ', `UPDATE ${Order.database()} SET ${item.toString()} WHERE id=${data.id}`)
-        let result = await pgdb.query(`UPDATE ${Order.database()} SET ${item.toString()} WHERE id=${data.id}`,
+        let result = await pgdb.query(`UPDATE ${Order.database()} SET ${item.toString()} WHERE id=${id}`,
             fields.map(key => data[key])
         );
         return result;
@@ -47,7 +46,18 @@ export class OrderDAO {
 		return result;
 	}
 
-	static async settleSearch(body) {
-		let result = await pgdb.any(`SELECT * FROM ${Order.database()} WHERE isdeleted=false `)
+	static async getOrder(customer_id, goods_id, date) {
+		console.log(`SELECT * FROM ${Order.database()} WHERE isdeleted=false AND customer_id=${customer_id} AND goods_id=${goods_id} AND order_date::date='${date}'::date`)
+		let result = await pgdb.any(`SELECT * FROM ${Order.database()} WHERE isdeleted=false AND customer_id=${customer_id} AND goods_id=${goods_id} AND order_date::date='${date}'::date`)
+		return result;
+	}
+
+	// static async getOrder(orderids) {
+	// 	let result = await pgdb.any(`SELECT * FROM ${Order.database()}`)
+	// }
+
+	static async getOrderIds(customer_id, date) {
+		let result = await pgdb.any(`SELECT id FROM ${Order.database()} WHERE isdeleted=false AND customer_id=${customer_id} AND order_date::date='${date}'::date `)
+		return result;
 	}
 }

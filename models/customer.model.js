@@ -46,6 +46,12 @@ export class CustomerDAO {
 		return result;
 	}
 
+	static async getCustomer(id) {
+		console.log(`SELECT * FROM ${Customer.database()} WHERE id=${id}`)
+		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE id=${id}`)
+		return result;
+	}
+
 	//不够抽象化
 	static async search(body) {
 		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE isdeleted=false AND 
