@@ -41,15 +41,18 @@ router.route('/pricecustomer').post(function(req, res) {
 router.route('/deletecustomer').post(function(req, res) {
 	business_controller.deletecustomer(req, res);
 });
-//查询商品
+//查询客户
 router.route('/searchcustomer').get(function(req, res) {
 	business_controller.searchcustomer(req, res);
 });
 
 
 //结算单查询
-// router.route('/pricecustomer').post(function(req, res) {
-// 	business_controller.updatecustomer(req, res);
-// });
+router.route('/settlement').post(function(req, res) {
+	business_controller.settlement(req, res);
+});
 
 //录入客户每日商品数额
+router.route('/order').post(function(req, res) {
+	business_controller.setOrder(req, res);
+});

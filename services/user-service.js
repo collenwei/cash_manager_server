@@ -7,12 +7,12 @@ import expressJwt from 'express-jwt';
 
 
 exports.login = async function(username, password) {
-    var pwd = password;//crypto.md5(password + 'collen');
-    var userdata = {username: 'accord', password:'1234'}//await UserDAO.getByName(username);
+    var pwd = crypto.md5(password + 'collen');
+    var userdata = await UserDAO.getByName(username);
     if (userdata && userdata.password == pwd) {
         userdata.sub = userdata.username;
         let token = jwt.sign(userdata, AuthConfig.secret, {algorithm: 'HS256' , expiresIn: 60 * 60 * 1000 });
-        return { role: userdata.role, user: userdata.username, department_id: userdata.department_id, token: token };
+        return { role: userdata.role, user: userdata.username, name: userdata.name, token: token };
     } else {
         throw '用户名或密码错误';
     }
@@ -38,7 +38,7 @@ exports.createUser = async(data) => {
     if(user_list)
         throw '用户名重复'
     else {
-        data.password = crypto.md5(data.password + 'tongyu');
+        data.password = crypto.md5(data.password + 'collen');
         const result = await UserDAO.insert(data);
         return { data: result };
     }
@@ -53,7 +53,7 @@ exports.deleteUser = async(data) => {
 //修改用户信息
 exports.modifyUser = async(data) => {
     if(data.password)
-        data.password = crypto.md5(data.password + 'tongyu');
+        data.password = crypto.md5(data.password + 'collen');
     const result = await UserDAO.update(data);
     return { data: result };
 };
@@ -61,8 +61,8 @@ exports.modifyUser = async(data) => {
 //md5 
 exports.modifyPassword = async(data) => {
     let user = await UserDAO.getByName(data.username)
-    let newpassword = crypto.md5(data.newpassword + 'tongyu');
-    let oldpassword = crypto.md5(data.oldpassword + 'tongyu');
+    let newpassword = crypto.md5(data.newpassword + 'collen');
+    let oldpassword = crypto.md5(data.oldpassword + 'collen');
     if (oldpassword == user.password) {
         const result = await UserDAO.update({ password: newpassword, id: user.id })
         return result

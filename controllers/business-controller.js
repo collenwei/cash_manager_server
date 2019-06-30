@@ -6,6 +6,7 @@ exports.commodity = async function(req, res) {
 	let body = {}
 	body.good_name = req.body.good_name;
 	body.good_price = req.body.good_price;
+	body.good_remark = req.body.good_remark;
 	try {
 		let result = await business_service.commodity(body);
 		ResultFul.success(result, res);
@@ -109,6 +110,30 @@ exports.searchcustomer = async function(req, res) {
 		let result = await business_service.searchcustomer({ pageSize, page, good_name });
 		ResultFul.success(result, res);
 	} catch (err) {
+		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
+	}
+}
+
+exports.settlement = async function(req, res) {
+	let {pageSize, page, start_time, end_time , customer_name} = req.query;
+	page = Number.parseInt(page) || 1;
+	pageSize = Number.parseInt(pageSize) || 10;
+	start_time = start_time || new Date('1900-01-01');
+	end_time = end_time || new Date('2100-01-01');
+	try {
+		let result = await business_service.settlement({customer_name, pageSize, page, start_time, end_time});
+		ResultFul.success(result, res);
+	} catch(err) {
+		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
+	}
+}
+
+exports.setOrder = async function(req, res) {
+	let {customer_id, good_id, number, date, price} = req.body;
+	try {
+		let result = await business_service.setOrder({customer_id, good_id, number, date, price});
+		ResultFul.success(result, res);
+	} catch(err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
 	}
 }
