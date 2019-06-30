@@ -5,45 +5,46 @@ const router = module.exports = new Router();
 router.prefix = '/v1/api';
 
 //新建商品
-router.route('/category/good').post(function(req, res) {
+router.route('/goods').post(function(req, res) {
     business_controller.commodity(req, res);
 });
 
 //修改商品
-router.route('/category/good/:id').put(function(req, res) {
+router.route('/goods/:id').put(function(req, res) {
 	business_controller.updatecommodity(req, res);
 });
 //删除商品
-router.route('/category/good/:id').delete(function(req, res) {
+router.route('/goods/:id').delete(function(req, res) {
 	business_controller.deletedcommodity(req, res);
 });
 //查询商品
-router.route('/category/good').get(function(req, res) {
+router.route('/goods').get(function(req, res) {
 	business_controller.searchcommodity(req, res);
 });
 
 //新建客户
-router.route('/newcustomer').get(function(req, res) {
+router.route('/customer').post(function(req, res) {
     business_controller.newcustomer(req, res);
 });
-
-
 //修改客户
-router.route('/updatecustomer').post(function(req, res) {
+router.route('/customer/:id').put(function(req, res) {
 	business_controller.updatecustomer(req, res);
 });
-
-//调整客户折扣
-router.route('/pricecustomer').post(function(req, res) {
-	business_controller.pricecustomer(req, res);
-});
 //删除客户信息
-router.route('/deletecustomer').post(function(req, res) {
+router.route('/customer/:id').delete(function(req, res) {
 	business_controller.deletecustomer(req, res);
 });
-//查询客户
-router.route('/searchcustomer').get(function(req, res) {
+//客户列表
+router.route('/customer').get(function(req, res) {
 	business_controller.searchcustomer(req, res);
+});
+//查询客户信息（含折扣）
+router.route('/customer/price').get(function(req, res) {
+	business_controller.searchcustomerprice(req, res);
+});
+//调整客户折扣
+router.route('/price').post(function(req, res) {
+	business_controller.pricecustomer(req, res);
 });
 
 

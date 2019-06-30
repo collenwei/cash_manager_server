@@ -4,7 +4,7 @@ export class Order {
 	constructor(data) {
 		if(data.id) this.id = data.id;
 		this.customer_id = data.customer_id;
-		this.good_id = data.good_id;
+		this.goods_id = data.goods_id;
 		this.price = data.price;
 		this.order = data.order;
 		this.order_date = data.order_date;

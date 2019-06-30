@@ -20,7 +20,7 @@ export class CustomerDAO {
 		const key = Object.keys(customer);
 		const result = await pgdb.any( 
 			`INSERT INTO ${Customer.database()} (${key.join(',')}) VALUES (${[...Array(key.length).keys()].map((_,i)=>"$"+(i+1))})`,
-            key.map(i => userData[i])
+            key.map(i => customer[i])
         );
         return result;
 	}
@@ -33,14 +33,15 @@ export class CustomerDAO {
 		for (let i = 0; i < fields.length; i++) {
             item.push(`${fields[i]}=${value[i]}`);
         }
-        console.log('sql ', `UPDATE ${Customer.database()} SET ${item.toString()} WHERE id=${data.id}`)
-        let result = await pgdb.query(`UPDATE ${Customer.database()} SET ${item.toString()} WHERE id=${data.id}`,
+        console.log('sql ', `UPDATE ${Customer.database()} SET ${item.toString()} WHERE id=${id}`)
+        let result = await pgdb.query(`UPDATE ${Customer.database()} SET ${item.toString()} WHERE id=${id}`,
             fields.map(key => data[key])
         );
         return result;
 	}
 
 	static async delete(id) {
+		console.log(`UPDATE ${Customer.database()} SET isdeleted=true WHERE id=${id}`);
 		let result = await pgdb.any(`UPDATE ${Customer.database()} SET isdeleted=true WHERE id=${id}`)
 		return result;
 	}
@@ -48,7 +49,7 @@ export class CustomerDAO {
 	//不够抽象化
 	static async search(body) {
 		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE isdeleted=false AND 
-			${body.customer_name? ('customer_name='+body.customer_name):'1=1'} ORDER BY id DESC LIMIT ${body.pageSize} OFFSET ${body.pageSize*(body.page-1)}`);
+			${body.customer_name? (`customer_name='${body.customer_name}'`):'1=1'} ORDER BY id DESC LIMIT ${body.pageSize||10} OFFSET ${(body.pageSize||10)*((body.page||1)-1)}`);
 		return result;
 	}
 }
