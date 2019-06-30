@@ -20,7 +20,7 @@ exports.updatecommodity = async function(req, res) {
 	body.good_name = req.body.good_name;
 	body.good_price = req.body.good_price;
 	body.good_remark = req.body.good_remark;
-	let id = req.body.id;
+	let id = req.params.id;
 	try {
 		let result = await business_service.updatecommodity(body, id);
 		ResultFul.success(result, res);
@@ -31,7 +31,7 @@ exports.updatecommodity = async function(req, res) {
 
 exports.deletedcommodity = async function(req, res) {
 	try {
-		let result = await business_service.deletedcommodity(req.body.id);
+		let result = await business_service.deletedcommodity(req.params.id);
 		ResultFul.success(result, res);
 	} catch (err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);

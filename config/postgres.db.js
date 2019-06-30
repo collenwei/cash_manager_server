@@ -2,7 +2,7 @@ import pgp from 'pg-promise';
 const connection = {
 	user: process.env.PGUS || 'collen',//tongyu
 	password: process.env.PGPW || "123qweasd",//nsRNxff0jI
-	host: process.env.POSTGRES || 'localhost',//47.103.89.78
+	host: process.env.POSTGRES || '47.103.89.78',//47.103.89.78
 	database: process.env.PGDATABASE || 'demo',
 	port: process.env.PGPORT || '5432'
 }

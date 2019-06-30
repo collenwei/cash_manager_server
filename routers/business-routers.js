@@ -2,23 +2,23 @@ import { Router } from 'express';
 import business_controller from '../controllers/business-controller';
 
 const router = module.exports = new Router();
-router.prefix = '/api';
+router.prefix = '/v1/api';
 
 //新建商品
-router.route('/newcommodity').post(function(req, res) {
+router.route('/category/good').post(function(req, res) {
     business_controller.commodity(req, res);
 });
 
 //修改商品
-router.route('/updatecommodity').post(function(req, res) {
+router.route('/category/good/:id').put(function(req, res) {
 	business_controller.updatecommodity(req, res);
 });
 //删除商品
-router.route('/deletedcommodity').post(function(req, res) {
+router.route('/category/good/:id').delete(function(req, res) {
 	business_controller.deletedcommodity(req, res);
 });
 //查询商品
-router.route('/searchcommodity').get(function(req, res) {
+router.route('/category/good').get(function(req, res) {
 	business_controller.searchcommodity(req, res);
 });
 
