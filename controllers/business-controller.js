@@ -41,8 +41,8 @@ exports.deletedcommodity = async function(req, res) {
 
 exports.searchcommodity = async function(req, res) {
 	let { pageSize, page, goods_name } = req.query;
-    page = Number.parseInt(page) || 1;
-    pageSize = Number.parseInt(pageSize) || 10;
+    // page = Number.parseInt(page) || 1;
+    // pageSize = Number.parseInt(pageSize) || 10;
 	try {
 		let result = await business_service.searchcommodity({ pageSize, page, goods_name });
 		ResultFul.success(result, res);
@@ -83,10 +83,20 @@ exports.updatecustomer = async function(req, res) {
 exports.pricecustomer = async function(req, res) {
 	let body = {};
 	body.customer_id = req.body.customer_id;
-	body.goods_id = req.body.goods_id;
-	body.price = req.body.price;
+	body.goods_prices = req.body.goods_prices;
 	try {
 		let result = await business_service.pricecustomer(body);
+		ResultFul.success(result, res);
+	} catch (err) {
+		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
+	}
+}
+
+exports.customergoods = async function(req, res) {
+	let customer_id = req.body.customer_id;
+	let goods_ids = req.body.goods_ids;
+	try {
+		let result = await business_service.customergoods(customer_id, goods_ids);
 		ResultFul.success(result, res);
 	} catch (err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
@@ -141,14 +151,12 @@ exports.settlement = async function(req, res) {
 	}
 }
 
-exports.settlementmounth = async function(req, res) {
-	let {customer_id, page, pageSize, start_date, end_date} = req.query;
+exports.settlementmonth = async function(req, res) {
+	let {customer_id, page, pageSize, month, year} = req.query;
 	page = Number.parseInt(page) || 1;
 	pageSize = Number.parseInt(pageSize) || 10;
-	start_date = start_date || moment(new Date('1900-01-01')).format('YYYY-MM-DD');
-	end_date = end_date || moment(new Date('2100-01-01')).format('YYYY-MM-DD');
 	try {
-		let result = await business_service.settlement({customer_id, pageSize, page, start_date, end_date});
+		let result = await business_service.settlementmonth({customer_id, pageSize, page, month, year});
 		ResultFul.success(result, res);
 	} catch(err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
@@ -159,10 +167,8 @@ exports.settlementtotal = async function(req, res) {
 	let {customer_id, page, pageSize} = req.query;
 	page = Number.parseInt(page) || 1;
 	pageSize = Number.parseInt(pageSize) || 10;
-	start_date = start_date || moment(new Date('1900-01-01')).format('YYYY-MM-DD');
-	end_date = end_date || moment(new Date('2100-01-01')).format('YYYY-MM-DD');
 	try {
-		let result = await business_service.settlement({customer_id, pageSize, page, start_date, end_date});
+		let result = await business_service.settlementtotal({customer_id, pageSize, page});
 		ResultFul.success(result, res);
 	} catch(err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);

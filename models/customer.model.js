@@ -7,6 +7,7 @@ export class Customer {
 		this.customer_address = data.customer_address;
 		this.customer_contact = data.customer_contact;
 		this.customer_remark = data.customer_remark;
+		this.customer_uid = data.customer_uid;
 		this.isdeleted = false;
 	}
 	static database() {
@@ -47,8 +48,8 @@ export class CustomerDAO {
 	}
 
 	static async getCustomer(id) {
-		console.log(`SELECT * FROM ${Customer.database()} WHERE id=${id}`)
-		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE id=${id}`)
+		console.log(`SELECT * FROM ${Customer.database()} WHERE ${id ? `id=${id}`: `1=1`}`)
+		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE ${id ? `id=${id}`: `1=1`}`)
 		return result;
 	}
 

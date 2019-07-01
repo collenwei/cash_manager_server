@@ -49,12 +49,17 @@ export class GoodsDAO {
 	static async search(body) {
 		// let goods_name = body.goods_name? ('goods_name='+body.goods_name):'1=1';
 		let result = await pgdb.any(`SELECT * FROM ${Goods.database()} WHERE isdeleted=false AND 
-			${body.goods_name? (`goods_name='${body.goods_name}'`):'1=1'} ORDER BY id DESC LIMIT ${body.pageSize||10} OFFSET ${(body.pageSize||10)*((body.page||1)-1)}`);
+			${body.goods_name? (`goods_name='${body.goods_name}'`):'1=1'} ORDER BY id DESC`);
 		return result;
 	}
 
 	static async getList() {
 		let result = await pgdb.any(`SELECT * FROM ${Goods.database()} WHERE isdeleted=false `);
+		return result;
+	}
+
+	static async getGoods(id) {
+		let result = await pgdb.any(`SELECT * FROM ${Goods.database()} WHERE id=${id} `);
 		return result;
 	}
 	// static async getGoodssList(body) {

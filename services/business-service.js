@@ -28,8 +28,6 @@ exports.searchcommodity = async function(body) {
 }
 
 exports.newcustomer = async function(body) {
-	let customer_list = await CustomerDAO.search(body);
-	if(customer_list.length > 0) throw '该客户已登记';
 	const result = await CustomerDAO.insert(body);
 	return {data: result};
 }
@@ -39,14 +37,43 @@ exports.updatecustomer = async function(body, id) {
 	return {data:result};
 }
 
-exports.pricecustomer = async function({price, goods_id, customer_id}) {
-	if(await PriceDAO.exist(goods_id, customer_id)) {
-		const result = await PriceDAO.price(customer_id, goods_id, price);
-		return {data: result};
-	} else {
-		const result = await PriceDAO.insert({price, goods_id, customer_id});
-		return {data: result};
+exports.pricecustomer = async function({customer_id, goods_prices}) {
+	for(let goods_price of goods_prices) {
+		 await PriceDAO.price(customer_id, goods_price.goods_id, goods_price.price);
 	}
+	return {};
+}
+
+exports.customergoods = async function(customer_id, goods_ids) {
+	console.log('customergoods');
+	let exist_price = [];
+	let not_exist_price = [];
+	let price_list = await PriceDAO.getPriceList(customer_id);
+	for(let goods_id of goods_ids) {
+		for(let price of price_list) {
+			if(goods_id == price.goods_id) {
+				exist_price.push(goods_id);
+			} 
+		}
+	}
+	goods_ids.map(value => {
+		if(exist_price.indexOf(value) == -1)
+			not_exist_price.push(value);
+	}) 
+	console.log('exist_price', exist_price)
+	console.log('not_exist_price', not_exist_price)
+	if(not_exist_price.length > 0) {
+		for(let goods_id of not_exist_price) {
+			let goods = await GoodsDAO.getGoods(goods_id);
+			await PriceDAO.insert({
+				customer_id: customer_id,
+				goods_id: goods_id,
+				price: goods[0].goods_price,
+			})
+		}
+	}
+	await PriceDAO.markprices(customer_id, goods_ids);
+	return {};
 }
 
 exports.deletecustomer = async function(customer_id) {
@@ -54,10 +81,19 @@ exports.deletecustomer = async function(customer_id) {
 	await PriceDAO.deletecustomer(customer_id);
 	return {};
 }
-//需要追加价格客户价格信息列表
+
 exports.searchcustomer = async function({customer_name, page, pageSize}) {
 	let customer_list = await CustomerDAO.search({customer_name, page, pageSize});
-	return {data: customer_list};
+	let result = [];
+	for(let customer of customer_list) {
+		let price_list = await PriceDAO.getPriceList(customer.id)
+		if(price_list.length > 0)
+			customer.price_goods = price_list;
+		else 
+			customer.price_goods = [{goods_name: '暂无挂钩商品', goods_id: -1}]
+		result.push(customer);
+	}
+	return {data: result};
 }
 
 exports.searchcustomerprice = async function({customer_name, page, pageSize}) {
@@ -71,9 +107,10 @@ exports.searchcustomerprice = async function({customer_name, page, pageSize}) {
 			let prices = await PriceDAO.getPrice(customer.id, goods_list[i].id);
 			if(prices.length > 0) {
 				cell[`goods_${goods_list[i].id}`] = {price: prices[0].price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
-			} else {
-				cell[`goods_${goods_list[i].id}`] = {price: goods_list[i].goods_price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
-			}
+			} 
+			// else {
+			// 	cell[`goods_${goods_list[i].id}`] = {price: goods_list[i].goods_price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
+			// }
 		}
 		cell[`customer_name`] = customer.customer_name;
 		cell[`customer_address`] = customer.customer_address;
@@ -92,7 +129,6 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 	for(let orders of orders_list) {
 		let cell = {}
 		cell.order = [];
-		console.log(1)
 		for(let goods of goods_list) {
 			let order = await OrderDAO.getOrder(orders.customer_id, goods.id, moment(orders.date).format('YYYY-MM-DD'));
 			cell.order.push({
@@ -100,9 +136,7 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 				goods_name: goods.goods_name
 			})
 		}
-		console.log(2)
 		let customer = await CustomerDAO.getCustomer(orders.customer_id);
-		console.log(3)
 		cell.id = orders.id;
 		cell.customer_name = customer[0].customer_name;
 		cell.date = moment(orders.date).format("YYYY-MM-DD");
@@ -114,13 +148,74 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 }
 
 //月结算
-exports.settlementmounth = async function() {
-
+exports.settlementmonth = async function({customer_id, month, year}) {
+	let customer_list = await CustomerDAO.getCustomer(customer_id);
+	let goods_list = await GoodsDAO.getList();
+	let nextmonth = (month==12? 1:(parseInt(month)+1));
+	let nextyear = (month==12? (parseInt(year)+1):year);
+	let result = [];
+	console.log('month',`${year}${month>9? month: `0${month}`}01` )
+	console.log('nextmonth', `${nextyear}${nextmonth>9? nextmonth: `0${nextmonth}`}01`)
+	for(let customer of customer_list) {
+		let cell = {};
+		let customer_orders = await OrderDAO.getOrders(customer.id, `${year}${month>9? month: `0${month}`}01`, `${nextyear}${nextmonth>9? nextmonth: `0${nextmonth}`}01`);
+		let customer_totals = await OrdersDAO.getOrdersSum(customer.id, `${year}${month>9? month: `0${month}`}01`, `${nextyear}${nextmonth>9? nextmonth: `0${nextmonth}`}01`);
+		cell.customer_id = customer.id;
+		cell.customer_name = customer.customer_name;
+		cell.date = `${year}${month>9? month: `0${month}`}`;
+		cell.goods = [];
+		if(customer_totals.length > 0) {
+			cell.total = customer_totals[0].sum;
+			for(let order of customer_orders) {
+				for(let goods of goods_list) {
+					if(goods.id == order.goods_id) {
+						let item = {
+							goods_name: goods.goods_name,
+							sum: order.sum
+						}
+						cell.goods.push(item);
+					}
+				}
+			}
+		} else {
+			cell.total = 0;
+		}
+		result.push(cell);
+	}
+	return {data: result};
 }
 
 //总计
-exports.settlementtotal = async function() {
-
+exports.settlementtotal = async function({customer_id}) {
+	let customer_list = await CustomerDAO.getCustomer(customer_id);
+	let goods_list = await GoodsDAO.getList();
+	let result = [];
+	for(let customer of customer_list) {
+		let cell = {};
+		let customer_orders = await OrderDAO.getOrders(customer.id, `19000101`, `21000101`);
+		let customer_totals = await OrdersDAO.getOrdersSum(customer.id, `19000101`, `21000101`);
+		cell.customer_id = customer.id;
+		cell.customer_name = customer.customer_name;
+		cell.goods = [];
+		if(customer_totals.length > 0) {
+			cell.total = customer_totals[0].sum;
+			for(let order of customer_orders) {
+				for(let goods of goods_list) {
+					if(goods.id == order.goods_id) {
+						let item = {
+							goods_name: goods.goods_name,
+							sum: order.sum
+						}
+						cell.goods.push(item);
+					}
+				}
+			}
+		} else {
+			cell.total = 0;
+		}
+		result.push(cell);
+	}
+	return {data: result};
 }
 
 //当日订单已出则更改客户折扣后，订单价格不会自动变更，需要手动调整价格
@@ -153,6 +248,8 @@ const createOrder = async function(customer_id, item, date) {
 exports.setOrder = async function(customer_id, items, order_date, remark) {
 	let total_amount = 0;
 	for(let item of items) {
+		let goods = await PriceDAO.getPrice(customer_id, item.goods_id);
+		item.price = goods[0].price;
 		total_amount = total_amount + item.price*item.order;
 		await createOrder(customer_id, item, order_date);
 	}

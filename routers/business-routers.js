@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import business_controller from '../controllers/business-controller';
+import { ResultFul } from '../middlewares/result-process';
 
 const router = module.exports = new Router();
 router.prefix = '/v1/api';
 
 //新建商品
 router.route('/goods').post(function(req, res) {
-    business_controller.commodity(req, res);
+	try {
+	    business_controller.commodity(req, res);
+	} catch (err) {
+
+	}
 });
 
 //修改商品
@@ -42,8 +47,14 @@ router.route('/customer').get(function(req, res) {
 router.route('/customer/price').get(function(req, res) {
 	business_controller.searchcustomerprice(req, res);
 });
-//调整客户折扣
+
+//客户归属商品勾选
 router.route('/price').post(function(req, res) {
+	business_controller.customergoods(req, res);
+})
+
+//调整客户折扣
+router.route('/price').put(function(req, res) {
 	business_controller.pricecustomer(req, res);
 });
 
@@ -54,12 +65,12 @@ router.route('/order').get(function(req, res) {
 });
 
 //月结算单查询
-router.route('/order').get(function(req, res) {
-	business_controller.settlementmounth(req, res);
+router.route('/order/month').get(function(req, res) {
+	business_controller.settlementmonth(req, res);
 });
 
 //总计结算单查询
-router.route('/order').get(function(req, res) {
+router.route('/order/total').get(function(req, res) {
 	business_controller.settlementtotal(req, res);
 });
 

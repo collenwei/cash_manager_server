@@ -52,4 +52,10 @@ export class OrdersDAO {
 		let result = await pgdb.query(sql);
 		return result;
 	}
+
+	static async getOrdersSum(customer_id, startdate, enddate) {
+		let result = await pgdb.any(`SELECT sum(total) FROM ${Orders.database()} 
+			WHERE customer_id=${customer_id} AND date::date >= '${startdate}'::date AND date::date < '${enddate}' GROUP BY customer_id`)
+		return result;
+	}
 }

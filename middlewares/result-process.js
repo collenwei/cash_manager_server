@@ -5,7 +5,6 @@ export class ResultFul {
 	}
 	static failedError(errorCode, err, res) {
 		console.log('OPS, ERROR OCCURED !', err);
-		// if(Object(err))
-		res.status(errorCode).send({error: err})
+		res.status(200).send({error: err})
 	}
 }

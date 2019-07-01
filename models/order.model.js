@@ -52,9 +52,13 @@ export class OrderDAO {
 		return result;
 	}
 
-	// static async getOrder(orderids) {
-	// 	let result = await pgdb.any(`SELECT * FROM ${Order.database()}`)
-	// }
+	static async getOrders(customer_id, startdate, enddate) {
+		console.log(`SELECT goods_id, sum(number) FROM ${Order.database()} 
+			WHERE customer_id=${customer_id} AND order_date::date >= '${startdate}'::date AND order_date::date < '${enddate}' GROUP BY goods_id`)
+		let result = await pgdb.any(`SELECT goods_id, sum(number) FROM ${Order.database()} 
+			WHERE customer_id=${customer_id} AND order_date::date >= '${startdate}'::date AND order_date::date < '${enddate}' GROUP BY goods_id`)
+		return result;
+	}
 
 	static async getOrderIds(customer_id, date) {
 		let result = await pgdb.any(`SELECT id FROM ${Order.database()} WHERE isdeleted=false AND customer_id=${customer_id} AND order_date::date='${date}'::date `)
