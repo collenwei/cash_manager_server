@@ -19,7 +19,7 @@ export class CustomerDAO {
 	static async insert(data) {
 		const customer = new Customer(data);
 		const key = Object.keys(customer);
-		const result = await pgdb.any( 
+		const result = await pgdb.query( 
 			`INSERT INTO ${Customer.database()} (${key.join(',')}) VALUES (${[...Array(key.length).keys()].map((_,i)=>"$"+(i+1))})`,
             key.map(i => customer[i])
         );
@@ -50,6 +50,11 @@ export class CustomerDAO {
 	static async getCustomer(id) {
 		console.log(`SELECT * FROM ${Customer.database()} WHERE ${id ? `id=${id}`: `1=1`}`)
 		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE ${id ? `id=${id}`: `1=1`}`)
+		return result;
+	}
+
+	static async getCustomerByUid(uid) {
+		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE customer_uid='${uid}'`)
 		return result;
 	}
 

@@ -28,8 +28,11 @@ exports.searchcommodity = async function(body) {
 }
 
 exports.newcustomer = async function(body) {
+	body.customer_uid = Date.now();
 	const result = await CustomerDAO.insert(body);
-	return {data: result};
+	const datas = await CustomerDAO.getCustomerByUid(body.customer_uid);
+	
+	return await this.customergoods(datas[0].id, body.goods_ids);;
 }
 
 exports.updatecustomer = async function(body, id) {
@@ -45,7 +48,6 @@ exports.pricecustomer = async function({customer_id, goods_prices}) {
 }
 
 exports.customergoods = async function(customer_id, goods_ids) {
-	console.log('customergoods');
 	let exist_price = [];
 	let not_exist_price = [];
 	let price_list = await PriceDAO.getPriceList(customer_id);

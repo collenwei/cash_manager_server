@@ -57,6 +57,7 @@ exports.newcustomer = async function(req, res) {
 	body.customer_address = req.body.customer_address;
 	body.customer_contact = req.body.customer_contact;
 	body.customer_remark = req.body.customer_remark;
+	body.goods_ids = req.body.goods_ids;
 	try {
 		let result = await business_service.newcustomer(body);
 		ResultFul.success(result, res);
