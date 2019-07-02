@@ -28,7 +28,6 @@ export class PriceDAO {
 
 	static async price(customer_id, goods_id, price) {
 		let update_time = moment(new Date()).format('YYYY-MM-DD');
-		console.log(`UPDATE ${Price.database()} SET price=${price}, update_time=${update_time}::date WHERE customer_id=${customer_id} AND goods_id=${goods_id}`)
 		const result = await pgdb.any(`UPDATE ${Price.database()} SET price=${price}, update_time='${update_time}'::date WHERE customer_id=${customer_id} AND goods_id=${goods_id}`)
 		return result;
 	}
@@ -44,19 +43,19 @@ export class PriceDAO {
 	}
 
 	static async getPrice(customer_id, goods_id) {
-		let result = await pgdb.any(`SELECT * FROM ${Price.database()} WHERE goods_id=${goods_id} AND customer_id=${customer_id}`);
+		let result = await pgdb.any(`SELECT * FROM ${Price.database()} WHERE goods_id=${goods_id} AND customer_id=${customer_id} AND isdeleted=false`);
 		return result;
 	}
 
 	static async exist(goods_id, customer_id) {
-		let result = await pgdb.any(`SELECT * FROM ${Price.database()} WHERE goods_id=${goods_id} AND customer_id=${customer_id}`);
+		let result = await pgdb.any(`SELECT * FROM ${Price.database()} WHERE goods_id=${goods_id} AND customer_id=${customer_id} AND isdeleted=false`);
 		return result.length;
 	}
 
 	static async getPriceList(customer_id) {
 		let result = await pgdb.any(`SELECT goods_id, b.goods_name as goods_name FROM ${Price.database()}
 			LEFT JOIN clean.good as b on ${Price.database()}.goods_id = b.id
-			WHERE customer_id=${customer_id} `);
+			WHERE customer_id=${customer_id} AND isdeleted=false`);
 		return result;
 	}
 

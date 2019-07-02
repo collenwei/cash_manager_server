@@ -34,7 +34,6 @@ export class CustomerDAO {
 		for (let i = 0; i < fields.length; i++) {
             item.push(`${fields[i]}=${value[i]}`);
         }
-        console.log('sql ', `UPDATE ${Customer.database()} SET ${item.toString()} WHERE id=${id}`)
         let result = await pgdb.query(`UPDATE ${Customer.database()} SET ${item.toString()} WHERE id=${id}`,
             fields.map(key => data[key])
         );
@@ -42,19 +41,18 @@ export class CustomerDAO {
 	}
 
 	static async delete(id) {
-		console.log(`UPDATE ${Customer.database()} SET isdeleted=true WHERE id=${id}`);
 		let result = await pgdb.any(`UPDATE ${Customer.database()} SET isdeleted=true WHERE id=${id}`)
 		return result;
 	}
 
 	static async getCustomer(id) {
 		console.log(`SELECT * FROM ${Customer.database()} WHERE ${id ? `id=${id}`: `1=1`}`)
-		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE ${id ? `id=${id}`: `1=1`}`)
+		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE isdeleted=false AND ${id ? `id=${id}`: `1=1`}`)
 		return result;
 	}
 
 	static async getCustomerByUid(uid) {
-		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE customer_uid='${uid}'`)
+		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE isdeleted=false AND customer_uid='${uid}'`)
 		return result;
 	}
 
