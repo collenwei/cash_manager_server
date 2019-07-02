@@ -31,7 +31,7 @@ exports.newcustomer = async function(body) {
 	body.customer_uid = Date.now();
 	const result = await CustomerDAO.insert(body);
 	const datas = await CustomerDAO.getCustomerByUid(body.customer_uid);
-	
+
 	return await this.customergoods(datas[0].id, body.goods_ids);;
 }
 
@@ -85,8 +85,10 @@ exports.deletecustomer = async function(customer_id) {
 }
 
 exports.searchcustomer = async function({customer_name, page, pageSize}) {
+	console.log("CustomerDAO")
 	let customer_list = await CustomerDAO.search({customer_name, page, pageSize});
 	let result = [];
+	console.log("PriceDAO")
 	for(let customer of customer_list) {
 		let price_list = await PriceDAO.getPriceList(customer.id)
 		if(price_list.length > 0)

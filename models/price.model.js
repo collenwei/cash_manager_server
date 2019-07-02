@@ -55,7 +55,7 @@ export class PriceDAO {
 	static async getPriceList(customer_id) {
 		let result = await pgdb.any(`SELECT goods_id, b.goods_name as goods_name FROM ${Price.database()}
 			LEFT JOIN clean.good as b on ${Price.database()}.goods_id = b.id
-			WHERE customer_id=${customer_id} AND isdeleted=false`);
+			WHERE customer_id=${customer_id} AND ${Price.database()}.isdeleted=false`);
 		return result;
 	}
 
