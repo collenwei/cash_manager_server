@@ -67,9 +67,9 @@ export class PriceDAO {
 	}
 
 	static async markprices(customer_id, ids) {
-		await pgdb.any(`UPDATE ${Price.database()} SET isdeleted=true 
-			WHERE customer_id=${customer_id} AND goods_id IN (${[...Array(ids.length).keys()].map((_, i)=>"$"+(i+1))})`, ids);
 		await pgdb.any(`UPDATE ${Price.database()} SET isdeleted=false 
+			WHERE customer_id=${customer_id} AND goods_id IN (${[...Array(ids.length).keys()].map((_, i)=>"$"+(i+1))})`, ids);
+		await pgdb.any(`UPDATE ${Price.database()} SET isdeleted=true 
 			WHERE customer_id=${customer_id} AND goods_id NOT IN (${[...Array(ids.length).keys()].map((_, i)=>"$"+(i+1))})`, ids);
 		return {};
 	}
