@@ -35,9 +35,9 @@ exports.newcustomer = async function(body) {
 	return await this.customergoods(datas[0].id, body.goods_ids);;
 }
 
-exports.updatecustomer = async function(body, id) {
+exports.updatecustomer = async function(body, id, goods_ids) {
 	const result = await CustomerDAO.update(body, id);
-	await this.customergoods(id, body.goods_ids)
+	await this.customergoods(id, goods_ids)
 	return {data:result};
 }
 

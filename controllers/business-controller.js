@@ -72,10 +72,9 @@ exports.updatecustomer = async function(req, res) {
 	body.customer_address = req.body.customer_address;
 	body.customer_contact = req.body.customer_contact;
 	body.customer_remark = req.body.customer_remark;
-	body.goods_ids = req.body.goods_ids;
 	let id = req.params.id;
 	try {
-		let result = await business_service.updatecustomer(body, id);
+		let result = await business_service.updatecustomer(body, id, req.body.goods_ids);
 		ResultFul.success(result, res);
 	} catch (err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
