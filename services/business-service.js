@@ -37,6 +37,7 @@ exports.newcustomer = async function(body) {
 
 exports.updatecustomer = async function(body, id) {
 	const result = await CustomerDAO.update(body, id);
+	await this.customergoods(id, body.goods_ids)
 	return {data:result};
 }
 
