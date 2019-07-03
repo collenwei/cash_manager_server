@@ -101,8 +101,8 @@ exports.searchcustomer = async function({customer_name, page, pageSize}) {
 	return {data: result};
 }
 
-exports.searchcustomerprice = async function({customer_name, customer_uid, page, pageSize}) {
-	let customer_list = await CustomerDAO.search({customer_name, customer_uid, page, pageSize});
+exports.searchcustomerprice = async function({customer_name, customer_id, page, pageSize}) {
+	let customer_list = await CustomerDAO.search({customer_name, customer_id, page, pageSize});
 	let goods_list = await GoodsDAO.getList();
 	let goods_name = {};
 	let result_list = [];
