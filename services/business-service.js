@@ -101,17 +101,18 @@ exports.searchcustomer = async function({customer_name, page, pageSize}) {
 	return {data: result};
 }
 
-exports.searchcustomerprice = async function({customer_name, page, pageSize}) {
-	let customer_list = await CustomerDAO.search({customer_name, page, pageSize});
+exports.searchcustomerprice = async function({customer_name, customer_uid, page, pageSize}) {
+	let customer_list = await CustomerDAO.search({customer_name, customer_uid, page, pageSize});
 	let goods_list = await GoodsDAO.getList();
 	let goods_name = {};
 	let result_list = [];
 	for(let customer of customer_list) {
 		let cell = {};
+		cell.price_goods=[];
 		for(let i = 0; i < goods_list.length; i++) {
 			let prices = await PriceDAO.getPrice(customer.id, goods_list[i].id);
 			if(prices.length > 0) {
-				cell[`goods_${goods_list[i].id}`] = {price: prices[0].price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
+				cell.price_goods.push( {price: prices[0].price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id});
 			} 
 			// else {
 			// 	cell[`goods_${goods_list[i].id}`] = {price: goods_list[i].goods_price, goods_name: goods_list[i].goods_name, goods_id: goods_list[i].id};
@@ -121,6 +122,7 @@ exports.searchcustomerprice = async function({customer_name, page, pageSize}) {
 		cell[`customer_address`] = customer.customer_address;
 		cell[`customer_contact`] = customer.customer_contact;
 		cell[`customer_remark`] = customer.customer_remark;
+		cell[`customer_uid`] = customer.customer_uid;
 		result_list.push(cell);
 	}
 	return {data: result_list};
