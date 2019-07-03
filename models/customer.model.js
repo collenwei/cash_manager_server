@@ -59,7 +59,7 @@ export class CustomerDAO {
 	//不够抽象化
 	static async search(body) {
 		let result = await pgdb.any(`SELECT * FROM ${Customer.database()} WHERE isdeleted=false AND 
-			${body.customer_name? (`customer_name='${body.customer_name}'`):'1=1'} ORDER BY id DESC LIMIT ${body.pageSize||10} OFFSET ${(body.pageSize||10)*((body.page||1)-1)}`);
+			${body.customer_name? (`customer_name='${body.customer_name}'`):'1=1'} AND ${body.customer_uid? (`customer_uid='${body.customer_uid}'`):'1=1'}  ORDER BY id DESC LIMIT ${body.pageSize||10} OFFSET ${(body.pageSize||10)*((body.page||1)-1)}`);
 		return result;
 	}
 }
