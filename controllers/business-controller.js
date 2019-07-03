@@ -127,11 +127,11 @@ exports.searchcustomer = async function(req, res) {
 }
 
 exports.searchcustomerprice = async function(req, res) {
-	let { pageSize, page, customer_name} = req.query;
+	let { pageSize, page, customer_name, customer_uid} = req.query;
     page = Number.parseInt(page) || 1;
     pageSize = Number.parseInt(pageSize) || 10;
     try {
-		let result = await business_service.searchcustomerprice({ pageSize, page, customer_name});
+		let result = await business_service.searchcustomerprice({ pageSize, page, customer_name, customer_uid});
 		ResultFul.success(result, res);
 	} catch (err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
