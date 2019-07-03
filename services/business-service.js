@@ -42,8 +42,8 @@ exports.updatecustomer = async function(body, id, goods_ids) {
 }
 
 exports.pricecustomer = async function({customer_id, goods_prices}) {
-	for(let goods_price of goods_prices) {
-		 await PriceDAO.price(customer_id, goods_price.goods_id, goods_price.price);
+	for(let key in goods_prices) {
+		 await PriceDAO.price(customer_id, key, goods_prices[key]);
 	}
 	return {};
 }
