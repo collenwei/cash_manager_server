@@ -211,7 +211,7 @@ exports.settlementtotal = async function({customer_id}) {
 		}
 		result.push(cell);
 	}
-	return {data: result};
+	return {data: {datasource: result, table_list: settlement_total}};
 }
 
 //当日订单已出则更改客户折扣后，订单价格不会自动变更，需要手动调整价格
@@ -250,7 +250,7 @@ exports.setOrder = async function(customer_id, items, order_date, remark) {
 		item.price = goods[0].price;
 		item.goods_id = key;
 		item.order = items[key];
-		total_amount = total_amount + items[key].price*items[key];
+		total_amount = total_amount + item.price*items[key];
 		await createOrder(customer_id, item, order_date);
 	}
 	let order_ids = await OrderDAO.getOrderIds(customer_id, order_date);
