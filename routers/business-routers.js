@@ -78,3 +78,7 @@ router.route('/order/total').get(function(req, res) {
 router.route('/order').post(function(req, res) {
 	business_controller.setOrder(req, res);
 });
+
+router.route('/order').put(function(req, res) {
+	business_controller.setOrder(req, res);
+})

@@ -3,6 +3,7 @@ import { Customer, CustomerDAO } from '../models/customer.model';
 import { Price, PriceDAO } from '../models/price.model';
 import { Order, OrderDAO } from '../models/order.model';
 import { Orders, OrdersDAO } from '../models/orders.model';
+import { settlement_daily, settlement_month, settlement_total } from '../config/settle_list'; 
 import moment from 'moment';
 
 exports.commodity = async function(body) {
@@ -132,16 +133,14 @@ exports.searchcustomerprice = async function({customer_name, customer_id, page, 
 exports.settlement = async function({customer_id, pageSize, page, start_date, end_date}) {
 	let orders_list = await OrdersDAO.query(customer_id, page, pageSize, start_date, end_date);
 	let goods_list = await GoodsDAO.getList();
-	let result = []
+	let result = [];
+	for(let goods of goods_list) settlement_daily.push({name: goods.goods_name, key: goods.id})
 	for(let orders of orders_list) {
 		let cell = {}
-		cell.order = [];
 		for(let goods of goods_list) {
 			let order = await OrderDAO.getOrder(orders.customer_id, goods.id, moment(orders.date).format('YYYY-MM-DD'));
-			cell.order.push({
-				number: order.length > 0 ? order[0].number: 0,
-				goods_name: goods.goods_name
-			})
+			console.log(goods.goods_name, order, order.length > 0 ? order[0].number: 0);
+			cell[goods.id] = order.length > 0 ? order[0].number: 0;
 		}
 		let customer = await CustomerDAO.getCustomer(orders.customer_id);
 		cell.id = orders.id;
@@ -151,7 +150,7 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 		cell.total = orders.total;
 		result.push(cell);
 	}
-	return {data: result};
+	return {data: {table_list: settlement_daily, datasource: result}};
 }
 
 //月结算
@@ -161,8 +160,7 @@ exports.settlementmonth = async function({customer_id, month, year}) {
 	let nextmonth = (month==12? 1:(parseInt(month)+1));
 	let nextyear = (month==12? (parseInt(year)+1):year);
 	let result = [];
-	console.log('month',`${year}${month>9? month: `0${month}`}01` )
-	console.log('nextmonth', `${nextyear}${nextmonth>9? nextmonth: `0${nextmonth}`}01`)
+	for(let goods of goods_list) settlement_month.push({name: goods.goods_name, key: goods.id})
 	for(let customer of customer_list) {
 		let cell = {};
 		let customer_orders = await OrderDAO.getOrders(customer.id, `${year}${month>9? month: `0${month}`}01`, `${nextyear}${nextmonth>9? nextmonth: `0${nextmonth}`}01`);
@@ -170,17 +168,12 @@ exports.settlementmonth = async function({customer_id, month, year}) {
 		cell.customer_id = customer.id;
 		cell.customer_name = customer.customer_name;
 		cell.date = `${year}${month>9? month: `0${month}`}`;
-		cell.goods = [];
 		if(customer_totals.length > 0) {
 			cell.total = customer_totals[0].sum;
 			for(let order of customer_orders) {
 				for(let goods of goods_list) {
 					if(goods.id == order.goods_id) {
-						let item = {
-							goods_name: goods.goods_name,
-							sum: order.sum
-						}
-						cell.goods.push(item);
+						cell[goods.id] = order.sum;
 					}
 				}
 			}
@@ -189,7 +182,7 @@ exports.settlementmonth = async function({customer_id, month, year}) {
 		}
 		result.push(cell);
 	}
-	return {data: result};
+	return {data: {datasource: result, table_list: settlement_month}};
 }
 
 //总计
@@ -197,23 +190,19 @@ exports.settlementtotal = async function({customer_id}) {
 	let customer_list = await CustomerDAO.getCustomer(customer_id);
 	let goods_list = await GoodsDAO.getList();
 	let result = [];
+	for(let goods of goods_list) settlement_total.push({name: goods.goods_name, key: goods.id})
 	for(let customer of customer_list) {
 		let cell = {};
 		let customer_orders = await OrderDAO.getOrders(customer.id, `19000101`, `21000101`);
 		let customer_totals = await OrdersDAO.getOrdersSum(customer.id, `19000101`, `21000101`);
 		cell.customer_id = customer.id;
 		cell.customer_name = customer.customer_name;
-		cell.goods = [];
 		if(customer_totals.length > 0) {
 			cell.total = customer_totals[0].sum;
 			for(let order of customer_orders) {
 				for(let goods of goods_list) {
 					if(goods.id == order.goods_id) {
-						let item = {
-							goods_name: goods.goods_name,
-							sum: order.sum
-						}
-						cell.goods.push(item);
+						cell[goods.id] = order.sum;
 					}
 				}
 			}
@@ -254,10 +243,14 @@ const createOrder = async function(customer_id, item, date) {
 
 exports.setOrder = async function(customer_id, items, order_date, remark) {
 	let total_amount = 0;
-	for(let item of items) {
-		let goods = await PriceDAO.getPrice(customer_id, item.goods_id);
+	console.log(items);
+	for(let key in items) {
+		let item = {};
+		let goods = await PriceDAO.getPrice(customer_id, key);
 		item.price = goods[0].price;
-		total_amount = total_amount + item.price*item.order;
+		item.goods_id = key;
+		item.order = items[key];
+		total_amount = total_amount + items[key].price*items[key];
 		await createOrder(customer_id, item, order_date);
 	}
 	let order_ids = await OrderDAO.getOrderIds(customer_id, order_date);
