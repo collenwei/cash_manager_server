@@ -293,10 +293,10 @@ const createOrder = async function(customer_id, item, date) {
 
 exports.setOrder = async function(customer_id, items, order_date, remark) {
 	let total_amount = 0;
-	console.log(items);
 	for(let key in items) {
 		let item = {};
 		let goods = await PriceDAO.getPrice(customer_id, key);
+		if(goods.length == 0) continue;
 		item.price = goods[0].price;
 		item.goods_id = key;
 		item.order = items[key];
