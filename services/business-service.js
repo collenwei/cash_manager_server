@@ -293,6 +293,7 @@ const createOrder = async function(customer_id, item, date) {
 
 exports.setOrder = async function(customer_uid, items, order_date, remark) {
 	let customer = await CustomerDAO.getCustomerByUid(customer_uid);
+	if(customer.length < 1) throw "不存在该客户"
 	let customer_id = customer[0].id;
 	let total_amount = 0;
 	for(let key in items) {
