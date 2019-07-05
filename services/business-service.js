@@ -180,7 +180,7 @@ exports.settlementmonth = async function({customer_id, month, year}) {
 	let nextmonth = (month==12? 1:(parseInt(month)+1));
 	let nextyear = (month==12? (parseInt(year)+1):year);
 	let result = [];
-	let settlement_month: [
+	let settlement_month= [
 	{
 		name:"客户编号",
 		key: "customer_id"
@@ -227,7 +227,7 @@ exports.settlementtotal = async function({customer_id}) {
 	let customer_list = await CustomerDAO.getCustomer(customer_id);
 	let goods_list = await GoodsDAO.getList();
 	let result = [];
-	let settlement_total: [
+	let settlement_total= [
 	{
 		name:"客户编号",
 		key: "customer_id"
