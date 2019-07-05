@@ -179,9 +179,9 @@ exports.settlementtotal = async function(req, res) {
 }
 
 exports.setOrder = async function(req, res) {
-	let {customer_id, goods, date, remark} = req.body;
+	let {customer_uid, goods, date, remark} = req.body;
 	try {
-		let result = await business_service.setOrder(customer_id, goods, date, remark);
+		let result = await business_service.setOrder(customer_uid, goods, date, remark);
 		ResultFul.success(result, res);
 	} catch(err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
