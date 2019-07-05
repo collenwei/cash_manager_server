@@ -168,10 +168,10 @@ exports.settlementmonth = async function(req, res) {
 
 exports.settlementtotal = async function(req, res) {
 	let {customer_id, page, pageSize} = req.query;
-	page = Number.parseInt(page) || 1;
-	pageSize = Number.parseInt(pageSize) || 10;
+	// page = Number.parseInt(page) || 1;
+	// pageSize = Number.parseInt(pageSize) || 10;
 	try {
-		let result = await business_service.settlementtotal({customer_id, pageSize, page});
+		let result = await business_service.settlementtotal({customer_id});
 		ResultFul.success(result, res);
 	} catch(err) {
 		ResultFul.failedError(ConstantUtils.authority_failed, err, res);
