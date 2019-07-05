@@ -291,7 +291,9 @@ const createOrder = async function(customer_id, item, date) {
 	}
 }
 
-exports.setOrder = async function(customer_id, items, order_date, remark) {
+exports.setOrder = async function(customer_uid, items, order_date, remark) {
+	let customer = await CustomerDAO.getCustomerByUid(customer_uid);
+	let customer_id = customer[0].id;
 	let total_amount = 0;
 	for(let key in items) {
 		let item = {};
