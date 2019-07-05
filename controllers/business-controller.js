@@ -156,6 +156,8 @@ exports.settlementmonth = async function(req, res) {
 	let {customer_id, page, pageSize, month, year} = req.query;
 	page = Number.parseInt(page) || 1;
 	pageSize = Number.parseInt(pageSize) || 10;
+	year = year || (new Date()).getFullYear();
+	month = month || ((new Date()).getMonth() + 1);
 	try {
 		let result = await business_service.settlementmonth({customer_id, pageSize, page, month, year});
 		ResultFul.success(result, res);
