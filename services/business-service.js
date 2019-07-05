@@ -134,12 +134,32 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 	let orders_list = await OrdersDAO.query(customer_id, page, pageSize, start_date, end_date);
 	let goods_list = await GoodsDAO.getList();
 	let result = [];
+	let settlement_daily = [
+	{
+		name:"订单号",
+		key: "id"
+	},
+	{
+		name:"客户名称",
+		key: "customer_name"
+	},
+	{
+		name:"日期",
+		key: "date"
+	},
+	{
+		name:"备注",
+		key: "remark"
+	},
+	{
+		name:"总计",
+		key: "total"
+	}];
 	for(let goods of goods_list) settlement_daily.push({name: goods.goods_name, key: goods.id})
 	for(let orders of orders_list) {
 		let cell = {}
 		for(let goods of goods_list) {
 			let order = await OrderDAO.getOrder(orders.customer_id, goods.id, moment(orders.date).format('YYYY-MM-DD'));
-			console.log(goods.goods_name, order, order.length > 0 ? order[0].number: 0);
 			cell[goods.id] = order.length > 0 ? order[0].number: 0;
 		}
 		let customer = await CustomerDAO.getCustomer(orders.customer_id);
@@ -160,6 +180,23 @@ exports.settlementmonth = async function({customer_id, month, year}) {
 	let nextmonth = (month==12? 1:(parseInt(month)+1));
 	let nextyear = (month==12? (parseInt(year)+1):year);
 	let result = [];
+	let settlement_month: [
+	{
+		name:"客户编号",
+		key: "customer_id"
+	},
+	{
+		name:"客户名称",
+		key: "customer_name"
+	},
+	{
+		name:"月份",
+		key: "date"
+	},
+	{
+		name:"总计",
+		key: "total"
+	}];
 	for(let goods of goods_list) settlement_month.push({name: goods.goods_name, key: goods.id})
 	for(let customer of customer_list) {
 		let cell = {};
@@ -190,6 +227,19 @@ exports.settlementtotal = async function({customer_id}) {
 	let customer_list = await CustomerDAO.getCustomer(customer_id);
 	let goods_list = await GoodsDAO.getList();
 	let result = [];
+	let settlement_total: [
+	{
+		name:"客户编号",
+		key: "customer_id"
+	},
+	{
+		name:"客户名称",
+		key: "customer_name"
+	},
+	{
+		name:"总计",
+		key: "total"
+	}];
 	for(let goods of goods_list) settlement_total.push({name: goods.goods_name, key: goods.id})
 	for(let customer of customer_list) {
 		let cell = {};
