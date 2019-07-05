@@ -209,7 +209,7 @@ exports.settlementmonth = async function({customer_id, month, year}) {
 		let customer_totals = await OrdersDAO.getOrdersSum(customer.id, `${year}${month>9? month: `0${month}`}01`, `${nextyear}${nextmonth>9? nextmonth: `0${nextmonth}`}01`);
 		cell.customer_id = customer.id;
 		cell.customer_name = customer.customer_name;
-		cell.date = `${year}${month>9? month: `0${month}`}`;
+		cell.date = `${year}${parseInt(month)>9? parseInt(month): `0${parseInt(month)}`}`;
 		if(customer_totals.length > 0) {
 			cell.total = customer_totals[0].sum;
 			for(let order of customer_orders) {
