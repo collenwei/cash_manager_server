@@ -3,7 +3,7 @@ import { Customer, CustomerDAO } from '../models/customer.model';
 import { Price, PriceDAO } from '../models/price.model';
 import { Order, OrderDAO } from '../models/order.model';
 import { Orders, OrdersDAO } from '../models/orders.model';
-import { settlement_daily, settlement_month, settlement_total } from '../config/settle_list'; 
+// import { settlement_daily, settlement_month, settlement_total } from '../config/settle_list'; 
 import moment from 'moment';
 
 exports.commodity = async function(body) {
