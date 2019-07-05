@@ -140,6 +140,10 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 		key: "id"
 	},
 	{
+		name:"客户编号",
+		key: "customer_uid"
+	},
+	{
 		name:"客户名称",
 		key: "customer_name"
 	},
@@ -165,6 +169,7 @@ exports.settlement = async function({customer_id, pageSize, page, start_date, en
 		let customer = await CustomerDAO.getCustomer(orders.customer_id);
 		cell.id = orders.id;
 		cell.customer_name = customer[0].customer_name;
+		cell.customer_uid = customer[0].customer_uid;
 		cell.date = moment(orders.date).format("YYYY-MM-DD");
 		cell.remark = orders.remark;
 		cell.total = orders.total;
