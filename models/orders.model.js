@@ -53,6 +53,8 @@ export class OrdersDAO {
 	}
 
 	static async getOrdersSum(customer_id, startdate, enddate) {
+		console.log(`SELECT sum(total) FROM ${Orders.database()} 
+			WHERE customer_id=${customer_id} AND date::date >= '${startdate}'::date AND date::date < '${enddate}' GROUP BY customer_id`)
 		let result = await pgdb.any(`SELECT sum(total) FROM ${Orders.database()} 
 			WHERE customer_id=${customer_id} AND date::date >= '${startdate}'::date AND date::date < '${enddate}' GROUP BY customer_id`)
 		return result;
