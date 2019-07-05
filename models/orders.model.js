@@ -47,8 +47,7 @@ export class OrdersDAO {
 
 	static async query(customer_id, page, pageSize, start_date, end_date) {
 		let sql = `SELECT * FROM ${Orders.database()} WHERE ${customer_id ? `customer_id=${customer_id}`: '1=1' } AND COALESCE(date, '2200-01-01')::date >= ('${(start_date||'1900-01-01')}')::date 
-                AND COALESCE(date, '1900-01-01')::date <= ('${(end_date||'2200-01-01')}')::date ORDER BY id DESC LIMIT ${pageSize} OFFSET ${pageSize*(page-1)} `
-        console.log('see the sql', sql);
+                AND COALESCE(date, '1900-01-01')::date <= ('${(end_date||'2200-01-01')}')::date ORDER BY date DESC LIMIT ${pageSize} OFFSET ${pageSize*(page-1)} `
 		let result = await pgdb.query(sql);
 		return result;
 	}
