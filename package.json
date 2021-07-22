@@ -44,7 +44,7 @@
     "pg-promise": "^6.3.6",
     "restler": "^3.3.0",
     "utility": "^1.12.0",
-    "xlsx": "^0.12.4",
+    "xlsx": "^0.17.0",
     "yargs": "^4.8.1"
   },
   "devDependencies": {
